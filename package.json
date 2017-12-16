@@ -1,0 +1,22 @@
+{
+  "name": "draw",
+  "version": "1.0.0",
+  "description": "Dignity",
+  "main": "draw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2kan/draw.git"
+  },
+  "author": "Tom Penney",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/2kan/draw/issues"
+  },
+  "homepage": "https://github.com/2kan/draw#readme",
+  "dependencies": {
+    "socket.io": "^2.0.4"
+  }
+}
