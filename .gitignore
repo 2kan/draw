@@ -57,3 +57,12 @@ typings/
 # dotenv environment variables file
 .env
 
+
+#
+# Custom rules
+#
+
+# This might stop HTML files from being added if I didn't use Pug to make it
+# but it works for now. Expecting my future hacked HTML file to not be committed
+# because I forgot about this rule
+*.html

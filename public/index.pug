@@ -1,0 +1,11 @@
+html
+	head
+		title= "it's a door -- use it!"
+
+		script(src="/socket.io/socket.io.js")
+		script(src="/js/jquery.min.js")
+		script(src="/js/draw.js")
+	body(style="background-color: gray")
+		canvas#drawCanvas(width=500, height=500, style="border: 1px solid black; background-color: white")
+		button#penDefault= "Pen"
+		button#penEraser= "Eraser"
