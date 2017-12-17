@@ -25,9 +25,8 @@ io.on( "connection", function ( a_sock )
 		console.log( "user disconnected - id: " + id );
 	} );
 
-	a_sock.on( "blep", function ( a_msg )
+	a_sock.on( "imageSubmission", function ( a_msg )
 	{
-		console.log( "qq: " );
 		console.log( a_msg );
 	} );
 } );
