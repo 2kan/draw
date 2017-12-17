@@ -15,21 +15,10 @@ app.use( express.static( "public" ) );
 
 } );*/
 
-io.on( "connection", function ( a_sock )
-{
-	var id = Math.floor( Math.random() * 100 );
-	console.log( "user connected - id: " + id );
+//const UserManager = new ( require( "./UserManager.js" ) )( io );
+const UserManager = require( "./UserManager.js" );
 
-	a_sock.on( "disconnect", function ()
-	{
-		console.log( "user disconnected - id: " + id );
-	} );
-
-	a_sock.on( "imageSubmission", function ( a_msg )
-	{
-		console.log( a_msg );
-	} );
-} );
+const _UserManager = new UserManager( io );
 
 
 
