@@ -16,10 +16,26 @@ html
 			.column#canvasOutlet
 				canvas.canvas#drawCanvas(width=500, height=500)
 				br
-				button#penDefault= "Pen"
-				button#penEraser= "Eraser"
-				button#submit(onclick="SendImage();")= "Submit image"
-				button#undo(onclick="UndoStroke();")= "Undo"
+				p.field#canvasButtons
+					button.button#penDefault
+						span.icon
+							i.fa.fa-pencil
+						span= "Pen"
+
+					button.button#penEraser
+						span.icon
+							i.fa.fa-eraser
+						span= "Eraser"
+
+					button.button.is-warning#undo(onclick="UndoStroke();")
+						span.icon
+							i.fa.fa-undo
+						span= "Undo"
+
+					button.button.is-info#submit(onclick="SendImage();")
+						span.icon
+							i.fa.fa-paper-plane
+						span= "Submit image"
 
 			.column
 				nav.panel#userOutlet

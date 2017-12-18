@@ -10,6 +10,11 @@
 
 }
 
+#canvasButtons button
+{
+	margin-left: 5px;
+}
+
 .panel-block
 {
 	background-color: white;
