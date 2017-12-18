@@ -108,7 +108,7 @@ async function OpponentRedraw( a_context, a_drawEvent )
 		a_context.stroke();
 
 		if ( _drawProgressively )
-			await sleep( 10 );
+			await sleep( 20 );
 	}
 }
 
