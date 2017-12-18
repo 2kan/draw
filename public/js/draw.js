@@ -1,23 +1,72 @@
 var socket = io();
 socket.emit( "joinRoom", "0" );
 
+var opponents = [];
+
+socket.on( "playerJoinedRoom", function ( a_opponentData )
+{
+	CreateOpponent( a_opponentData );
+} );
+
+socket.on( "playerList", function ( a_opponents )
+{
+	for ( var i = 0; i < a_opponents.length; ++i )
+		CreateOpponent( a_opponents[ i ] );
+} );
+
 socket.on( "opponentImageData", function ( a_opponentImage )
 {
 	console.log( a_opponentImage );
 
+	var opponent;
+	for ( var i = 0; i < opponents.length; ++i )
+		if ( opponents[ i ].id == a_opponentImage.id )
+			opponent = opponents[ i ];
+
 	// see notes in jquery ready function
-	DrawOpponentCanvas( $( ".opponentCanvas" )[ 0 ].getContext( "2d" ), a_opponentImage.imageData );
+	DrawOpponentCanvas( opponent.context, a_opponentImage.imageData );
 } );
 
-
-var opponentCanvasses = [];
+socket.on( "playerLeftRoom", function ( a_opponent )
+{
+	$( "[data-opponent-id='" + a_opponent.id + "']" ).remove();
+} );
 
 $( document ).ready( function ()
 {
 	// bleh
 	// will fix this later once my tests work
-	opponentCanvasses.push( $( ".opponentCanvas" )[ 0 ] );
+	//opponentCanvasses.push( $( ".opponentCanvas" )[ 0 ] );
 } );
+
+
+
+function CreateOpponent( a_opponentData )
+{
+	$( "#canvasOutlet" ).append(
+		"<br data-opponent-id='" + a_opponentData.id + "' />" + // lol
+		"<canvas class='canvas opponentCanvas' width=500 height=500 " +
+		"data-opponent-id='" + a_opponentData.id + "' />"
+	);
+
+	var thisOpponent = {
+		id: a_opponentData.id,
+		name: a_opponentData.name,
+		context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
+			.getContext( "2d" )
+	};
+
+	opponents.push( thisOpponent );
+
+	$( "#userOutlet" ).append(
+		"<div class='panel-block' data-opponent-id='" + thisOpponent.id + "'>" +
+		"	<span class='panel-icon'><i class='fa fa-user'></i></span>" +
+		thisOpponent.name +
+		"</div>"
+	);
+}
+
+
 
 function SendImage()
 {
@@ -47,6 +96,8 @@ async function OpponentRedraw( a_context, a_drawEvent )
 	{
 		a_context.strokeStyle = a_drawEvent[ i ].color;
 		a_context.lineWidth = a_drawEvent[ i ].size;
+
+		//if ( !a_drawEvent[ i ].dragging )
 		a_context.beginPath();
 
 		if ( a_drawEvent[ i ].dragging && i )
@@ -60,7 +111,10 @@ async function OpponentRedraw( a_context, a_drawEvent )
 
 		a_context.lineTo( a_drawEvent[ i ].x, a_drawEvent[ i ].y );
 
+		//if ( i < a_drawEvent.length - 1 && !a_drawEvent[ i + 1 ].dragging || i == a_drawEvent.length - 1 )
 		a_context.closePath();
+
+		//if ( i % 2 == 0 )
 		a_context.stroke();
 
 		await sleep( 30 );

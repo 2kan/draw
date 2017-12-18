@@ -7,17 +7,23 @@ html
 		script(src="/js/canvas.js")
 		script(src="/js/draw.js")
 
+		link(rel="stylesheet", href="/css/bulma.css")
 		link(rel="stylesheet", href="/css/styles.css")
+		link(rel="stylesheet", href="/css/font-awesome.min.css")
 
-	body(style="background-color: gray")
-		canvas.canvas#drawCanvas(width=500, height=500)
+	body
+		.columns
+			.column#canvasOutlet
+				canvas.canvas#drawCanvas(width=500, height=500)
+				br
+				button#penDefault= "Pen"
+				button#penEraser= "Eraser"
+				button#submit(onclick="SendImage();")= "Submit image"
 
-		br
-		button#penDefault= "Pen"
-		button#penEraser= "Eraser"
-		button#submit(onclick="SendImage();")= "Submit image"
-
-		br
-		br
-
-		canvas.canvas.opponentCanvas(width=500, height=500)
+			.column
+				nav.panel#userOutlet
+					p.panel-heading= "Players in room"
+					.panel-block
+						span.panel-icon
+							i.fa.fa-user
+						| 2kan

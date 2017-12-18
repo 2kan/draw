@@ -24,11 +24,12 @@ module.exports = class User
 		this.sock.on( "disconnect", () =>
 		{
 			console.log( "user disconnected - id: " + this.id );
+			this._usrmgr.DeleteUser( this.id );
 		} );
 
 		this.sock.on( "imageSubmission", ( a_msg ) =>
 		{
-			console.log( a_msg );
+			console.log( "received image from id " + this.id );
 			this.ReceivedImage( a_msg );
 		} );
 

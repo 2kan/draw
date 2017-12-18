@@ -10,7 +10,7 @@ module.exports = class UserManager
 		this.userCount = 0;
 
 		const _Room = require( "./Room.js" );
-		this.room = new _Room( 0 );
+		this.room = new _Room( this, 0 );
 
 		this.io.on( "connection", ( a_sock ) => { this.CreateUser( a_sock ); } );
 		console.log( "ready" );
@@ -34,6 +34,11 @@ module.exports = class UserManager
 		this.room.AddUser( a_userId );
 	}
 
+	DeleteUser( a_userId )
+	{
+		this.room.RemoveUser( a_userId );
+	}
+
 	GetIo()
 	{
 		return this.io;
@@ -45,11 +50,18 @@ module.exports = class UserManager
 		for ( var i = 0; i < users.length; ++i )
 		{
 			// This won't work for multiple users, but I need to test this first
-			if ( users[ i ] != a_senderId )
-				this.users[ users[ i ] ].GetSocket().emit( "opponentImageData", {
-					id: users[ i ],
+			if ( users[ i ].id != a_senderId )
+				this.users[ users[ i ].id ].GetSocket().emit( "opponentImageData", {
+					id: a_senderId,
 					imageData: a_imageData
 				} );
 		}
+	}
+
+	EmitToUser( a_userId, a_messageName, a_value )
+	{
+		//console.log( this.users );
+		//console.log( a_userId, a_messageName, a_value );
+		this.users[ a_userId ].GetSocket().emit( a_messageName, a_value );
 	}
 }
