@@ -27,6 +27,9 @@ module.exports = class Room
 
 	RemoveUser( a_userId )
 	{
+		if ( !this.GetUser( a_userId ) )
+			return;
+
 		this.EmitToRoom( a_userId, "playerLeftRoom", { id: a_userId } );
 
 		for ( var i = 0; i < this.users.length; ++i )
@@ -39,13 +42,30 @@ module.exports = class Room
 		return this.users;
 	}
 
+	GetUser( a_userId )
+	{
+		for ( var i = 0; i < this.users.length; ++i )
+		{
+			if ( this.users[ i ].id == a_userId )
+				return this.users[ i ];
+		}
+	}
+
 	EmitToRoom( a_senderId, a_messageName, a_value )
 	{
 		for ( var i = 0; i < this.users.length; ++i )
 		{
-			if ( this.users[ i ] == a_senderId )
+			if ( this.users[ i ].id == a_senderId )
 				continue;
 			this._usrmgr.EmitToUser( this.users[ i ].id, a_messageName, a_value );
 		}
+	}
+
+	SubmitImage( a_senderId, a_imageData )
+	{
+		this.EmitToRoom( a_senderId, "opponentImageData", {
+			id: a_senderId,
+			imageData: a_imageData
+		} );
 	}
 }

@@ -9,7 +9,7 @@ module.exports = class User
 		this.sock = a_socket;
 		this.SetupUser();
 
-		this.currentRoom = -1;
+		this.roomObj;
 	}
 
 	GetSocket()
@@ -35,13 +35,14 @@ module.exports = class User
 
 		this.sock.on( "joinRoom", ( a_roomId ) =>
 		{
-			this.currentRoom = a_roomId;
-			this._usrmgr.JoinRoom( this.id, a_roomId );
+			this.roomObj = this._usrmgr.JoinRoom( this.id, a_roomId );
 		} );
 	}
 
 	ReceivedImage( a_imageData )
 	{
-		this._usrmgr.EmitImageToRoom( this.id, this.currentRoom, a_imageData );
+		//this._usrmgr.EmitImageToRoom( this.id, this.currentRoom, a_imageData );
+
+		this.roomObj.room.SubmitImage( this.id, a_imageData );
 	}
 }
