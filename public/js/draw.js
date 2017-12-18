@@ -3,6 +3,7 @@ socket.emit( "joinRoom", "0" );
 
 var _drawProgressively = true;
 var opponents = [];
+var _imageSubmitted = false;
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
 {
@@ -19,18 +20,35 @@ socket.on( "opponentImageData", function ( a_opponentImage )
 {
 	console.log( a_opponentImage );
 
+	// Get the opponent that submitted the image
 	var opponent;
 	for ( var i = 0; i < opponents.length; ++i )
 		if ( opponents[ i ].id == a_opponentImage.id )
 			opponent = opponents[ i ];
 
-	// see notes in jquery ready function
-	DrawOpponentCanvas( opponent.context, a_opponentImage.imageData );
+	opponent.imageSubmitted = true;
+	opponent.imageData = a_opponentImage.imageData;
+	$( "#userOutlet [data-opponent-id='" + a_opponentImage.id + "']" ).css( "font-weight", "bold" );
+
+
+
+	// Check if everyone's submitted their turn
+	if ( RoundIsReadyForReplay() )
+	{
+		DrawOpponentCanvasses();
+	}
+	//DrawOpponentCanvas( opponent.context, a_opponentImage.imageData );
 } );
 
 socket.on( "playerLeftRoom", function ( a_opponent )
 {
 	$( "[data-opponent-id='" + a_opponent.id + "']" ).remove();
+
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		if ( opponents[ i ].id == a_opponent.id )
+			opponents.splice( i, 1 );
+	}
 } );
 
 $( document ).ready( function ()
@@ -53,6 +71,8 @@ function CreateOpponent( a_opponentData )
 	var thisOpponent = {
 		id: a_opponentData.id,
 		name: a_opponentData.name,
+		imageSubmitted: false,
+		imageData: undefined,
 		context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
 			.getContext( "2d" )
 	};
@@ -67,12 +87,39 @@ function CreateOpponent( a_opponentData )
 	);
 }
 
-
-function DrawOpponentCanvas( a_canvas, a_drawEvents )
+// Returns true if the player and all opponents have submitted their turn
+function RoundIsReadyForReplay()
 {
-	//for ( var i = 0; i < a_drawEvents.length; ++i )
+	// Get number of opponents that have submitted their turn
+	var opponentsReady = 0;
+	for ( var i = 0; i < opponents.length; ++i )
 	{
-		OpponentRedraw( a_canvas, a_drawEvents );
+		if ( opponents[ i ].imageSubmitted )
+			++opponentsReady;
+	}
+
+	return opponentsReady == opponents.length && _imageSubmitted;
+}
+
+function ResetRound()
+{
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		opponents[ i ].imageSubmitted = false;
+		opponents[ i ].imageData = undefined;
+		$( "#userOutlet [data-opponent-id='" + opponents[ i ].id + "']" ).css( "font-weight", "" );
+
+		// Clear canvasses
+		opponents[ i ].context.clearRect( 0, 0, opponents[ i ].context.canvas.width, opponents[ i ].context.canvas.height );
+	}
+}
+
+
+function DrawOpponentCanvasses()
+{
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		OpponentRedraw( opponents[ i ].context, opponents[ i ].imageData );
 	}
 }
 

@@ -47,6 +47,13 @@ function AddPoint( a_mousePos, a_dragging )
 function SendImage()
 {
 	socket.emit( "imageSubmission", drawEvent );
+	_imageSubmitted = true;
+
+	// Check if everyone's submitted their turn
+	if ( RoundIsReadyForReplay() )
+	{
+		DrawOpponentCanvasses();
+	}
 }
 
 function UndoStroke()
