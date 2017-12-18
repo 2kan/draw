@@ -2,9 +2,20 @@
 {
 	background-color: white;
 	border: 1px solid black;
+	margin: 5px;
 }
 
 .ownCanvas
 {
 
+}
+
+.panel-block
+{
+	background-color: white;
+}
+
+body
+{
+	background-color: #888;
 }
