@@ -44,6 +44,11 @@ function AddPoint ( a_mousePos, a_dragging )
 	);
 }
 
+function SendImage()
+{
+	socket.emit( "imageSubmission", drawEvent );
+}
+
 
 
 //
@@ -103,7 +108,7 @@ function CreateCanvas ( a_canvasId )
 
 	$( a_canvasId ).on( "mouseleave", function ( e )
 	{
-		paint = false;
+		//paint = false;
 	} );
 
 	$( "#penDefault" ).on( "click", function ()

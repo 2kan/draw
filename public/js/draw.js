@@ -1,6 +1,7 @@
 var socket = io();
 socket.emit( "joinRoom", "0" );
 
+var _drawProgressively = true;
 var opponents = [];
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
@@ -67,16 +68,9 @@ function CreateOpponent( a_opponentData )
 }
 
 
-
-function SendImage()
-{
-	socket.emit( "imageSubmission", drawEvent );
-}
-
-
 function DrawOpponentCanvas( a_canvas, a_drawEvents )
 {
-	for ( var i = 0; i < a_drawEvents.length; ++i )
+	//for ( var i = 0; i < a_drawEvents.length; ++i )
 	{
 		OpponentRedraw( a_canvas, a_drawEvents );
 	}
@@ -97,7 +91,6 @@ async function OpponentRedraw( a_context, a_drawEvent )
 		a_context.strokeStyle = a_drawEvent[ i ].color;
 		a_context.lineWidth = a_drawEvent[ i ].size;
 
-		//if ( !a_drawEvent[ i ].dragging )
 		a_context.beginPath();
 
 		if ( a_drawEvent[ i ].dragging && i )
@@ -111,13 +104,11 @@ async function OpponentRedraw( a_context, a_drawEvent )
 
 		a_context.lineTo( a_drawEvent[ i ].x, a_drawEvent[ i ].y );
 
-		//if ( i < a_drawEvent.length - 1 && !a_drawEvent[ i + 1 ].dragging || i == a_drawEvent.length - 1 )
 		a_context.closePath();
-
-		//if ( i % 2 == 0 )
 		a_context.stroke();
 
-		await sleep( 30 );
+		if ( _drawProgressively )
+			await sleep( 10 );
 	}
 }
 
