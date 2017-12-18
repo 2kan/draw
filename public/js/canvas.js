@@ -22,7 +22,7 @@ $( document ).ready( function ()
 	CreateCanvas( "#drawCanvas" );
 } );
 
-function GetMousePos ( a_mouseEvent )
+function GetMousePos( a_mouseEvent )
 {
 	var offset = $( "#drawCanvas" ).offset();
 	return {
@@ -31,7 +31,7 @@ function GetMousePos ( a_mouseEvent )
 	};
 }
 
-function AddPoint ( a_mousePos, a_dragging )
+function AddPoint( a_mousePos, a_dragging )
 {
 	drawEvent.push(
 		{
@@ -49,12 +49,25 @@ function SendImage()
 	socket.emit( "imageSubmission", drawEvent );
 }
 
+function UndoStroke()
+{
+	for ( var i = drawEvent.length - 1; i >= 0; --i )
+	{
+		if ( !drawEvent[ i ].dragging )
+		{
+			drawEvent.splice( i );
+			Redraw();
+			return;
+		}
+	}
+}
+
 
 
 //
 // Here's where the magic happens
 //
-function Redraw ()
+function Redraw()
 {
 	context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
 
@@ -82,7 +95,7 @@ function Redraw ()
 	}
 }
 
-function CreateCanvas ( a_canvasId )
+function CreateCanvas( a_canvasId )
 {
 	$( a_canvasId ).on( "mousedown", function ( e )
 	{
