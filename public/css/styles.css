@@ -25,7 +25,12 @@ body
 	background-color: #888;
 }
 
-#usernameSelectModal .modal-card
+#usernameSelectModal .modal-card, #imageDrawingModal .modal-card
 {
 	margin-top: 50px;
+}
+
+.buttonGroup a
+{
+	margin-right: 10px;
 }

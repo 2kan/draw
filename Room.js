@@ -19,17 +19,23 @@ module.exports = class Room
 
 	AddUser( a_userId, a_username )
 	{
-		console.log( "id " + a_userId + " joined room!" );
-		//console.log( this.users );
-		const id = this.userCount;
-		++this.userCount;
-		this.users.push( { id: a_userId, name: a_username } );
+		if ( this.state == this.STATES.ROUND_START )
+		{
+			console.log( "id " + a_userId + " joined room " + this.roomId + " with username " + a_username );
 
-		this.EmitToRoom( a_userId, "playerJoinedRoom", { id: a_userId, name: a_username } );
-		this._usrmgr.EmitToUser( a_userId, "playerList", this.users );
+			const id = this.userCount;
+			++this.userCount;
+			this.users.push( { id: a_userId, name: a_username } );
 
-		//console.log( this.users );
-		return id;
+			this.EmitToRoom( a_userId, "playerJoinedRoom", { id: a_userId, name: a_username } );
+			this._usrmgr.EmitToUser( a_userId, "playerList", this.users );
+
+			//console.log( this.users );
+			return id;
+		}
+
+		console.log( "id " + a_userId + " attempted to join the room but it is in state " + this.state );
+		return false;
 	}
 
 	RemoveUser( a_userId )

@@ -11,6 +11,12 @@ socket.on( "welcome", function ( a_welcomeData )
 	_id = a_welcomeData.id;
 } );
 
+socket.on( "joinRoomResult", function ( a_result )
+{
+	if ( !a_result.ok )
+		alert( "Could not join room! Reason: " + a_result.reason );
+} );
+
 socket.on( "playerJoinedRoom", function ( a_opponentData )
 {
 	console.log( "Opponent " + a_opponentData.id + " joined the room" );
@@ -41,7 +47,7 @@ socket.on( "opponentImageData", function ( a_opponentImage )
 	// Check if everyone's submitted their turn
 	if ( RoundIsReadyForReplay() )
 	{
-		DrawOpponentCanvasses();
+		DrawNextOpponentCanvas();
 	}
 	//DrawOpponentCanvas( opponent.context, a_opponentImage.imageData );
 } );
@@ -97,6 +103,21 @@ $( document ).ready( function ()
 		}
 	} );
 
+
+	$( "#votingButtons" ).on( "click", function ()
+	{
+		socket.emit( "vote", {
+			id: $( this ).data( "id" ),
+			action: $( this ).attr( "data-action" )
+		} );
+
+		if ( !DrawNextOpponentCanvas() )
+		{
+			ToggleDrawingModal( false );
+			// round is over
+		}
+	} );
+
 	ToggleUsernameModal( true );
 } );
 
@@ -104,6 +125,11 @@ $( document ).ready( function ()
 function ToggleUsernameModal( a_show )
 {
 	$( "#usernameSelectModal" ).css( "display", a_show ? "inherit" : "none" );
+}
+
+function ToggleDrawingModal( a_show )
+{
+	$( "#imageDrawingModal" ).css( "display", a_show ? "inherit" : "none" );
 }
 
 function UsernameIsValid( a_username )
@@ -114,21 +140,22 @@ function UsernameIsValid( a_username )
 
 function CreateOpponent( a_opponentData )
 {
-	if ( a_opponentData.name != _username )
+	if ( a_opponentData.id != _id )
 	{
-		$( "#canvasOutlet" ).append(
+		/*$( "#canvasOutlet" ).append(
 			"<br data-opponent-id='" + a_opponentData.id + "' />" + // lol
 			"<canvas class='canvas opponentCanvas' width=500 height=500 " +
 			"data-opponent-id='" + a_opponentData.id + "' />"
-		);
+		);*/
 
 		var thisOpponent = {
 			id: a_opponentData.id,
 			name: a_opponentData.name,
 			imageSubmitted: false,
 			imageData: undefined,
-			context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
-				.getContext( "2d" )
+			drawnCanvas: false
+			//context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
+			//	.getContext( "2d" )
 		};
 
 		opponents.push( thisOpponent );
@@ -162,28 +189,51 @@ function ResetRound()
 	{
 		opponents[ i ].imageSubmitted = false;
 		opponents[ i ].imageData = undefined;
-		$( "#userOutlet [data-opponent-id='" + opponents[ i ].id + "']" ).css( "font-weight", "" );
-
-		// Clear canvasses
-		opponents[ i ].context.clearRect( 0, 0, opponents[ i ].context.canvas.width, opponents[ i ].context.canvas.height );
+		opponents[ i ].drawnCanvas = false;
+		$( "#userOutlet [data-opponent-id='" + opponents[ i ].id + "']" ).css( "font-weight", "normal" );
 	}
 
 	_imageSubmitted = false;
 	ResetCanvas();
-	$( "#submit" ).prop( "disabled", false );
 
-	for ( var i = 0; i < opponents.length; ++i )
-		$( "#userOutlet [data-opponent-id='" + opponents.id + "']" ).css( "font-weight", "normal" );
+	$( "#submit" ).prop( "disabled", false );
 	$( "#userOutlet [data-opponent-id='" + _id + "']" ).css( "font-weight", "normal" );
 }
 
 
-function DrawOpponentCanvasses()
+function DrawNextOpponentCanvas()
 {
-	for ( var i = 0; i < opponents.length; ++i )
+	/*for ( var i = 0; i < opponents.length; ++i )
 	{
 		OpponentRedraw( opponents[ i ].context, opponents[ i ].imageData );
+	}*/
+
+	ToggleDrawingModal( true );
+
+	var drawnCanvases = 0;
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		if ( !opponents[ i ].drawnCanvas )
+		{
+			$( "#imageDrawingModal .modal-card-title" ).text( "Watching: " + opponents[ i ].name );
+			SetVoteButtons( opponents[ i ].id );
+			OpponentRedraw( $( "#imagePlaybackCanvas" )[ 0 ].getContext( "2d" ), opponents[ i ].imageData );
+			
+			opponents[ i ].drawnCanvas = true;
+			break;
+		}
+		++drawnCanvases;
 	}
+
+	return drawnCanvases < opponents.length;
+}
+
+function SetVoteButtons( a_opponentId )
+{
+	$( "#votingButtons" ).each( ( a_index, a_element ) =>
+	{
+		$( a_element ).data( "id", a_opponentId );
+	} );
 }
 
 //

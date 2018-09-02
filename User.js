@@ -36,15 +36,29 @@ module.exports = class User
 
 		this.sock.on( "joinRoom", ( a_joinData ) =>
 		{
-			console.log( "Joined room " + a_joinData.roomId + " with username " + a_joinData.username );
 			this.username = a_joinData.username;
-			this.roomObj = this._usrmgr.JoinRoom( this.id, this.username, a_joinData.roomId );
+			var joinSuccess = this._usrmgr.JoinRoom( this.id, this.username, a_joinData.roomId );
+
+			if ( joinSuccess == false )
+			{
+				this._usrmgr.EmitToUser( this.id, "joinRoomResult", { ok: false, reason: "round in progress" } );
+			}
+			else
+			{
+				this.roomObj = joinSuccess;
+				this._usrmgr.EmitToUser( this.id, "joinRoomResult", { ok: true } );
+			}
 		} );
 
 		this.sock.on( "resetRound", ( a_msg ) =>
 		{
 			console.log( "Reset room called" );
 			this.roomObj.room.ResetRound();
+		} );
+
+		this.sock.on( "vote", ( a_msg ) =>
+		{
+			console.log( "id " + this.id + " submitted vote: " + JSON.stringify( a_msg ) );
 		} );
 	}
 

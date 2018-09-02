@@ -20,9 +20,31 @@ html
 				.modal-card-body
 					.field.has-addons
 						.control.is-expanded
-							input.input#username(type="text", placeholder="Username")
+							input.input#username(type="text", placeholder="Username", value="an_idiot")
 						.control
 							a.button.is-info#submitUsername= "Join"
+
+		.modal#imageDrawingModal
+			.modal-background
+			.modal-card
+				.modal-card-head
+					p.modal-card-title= "Watching: some idiot"
+				.modal-card-body
+					canvas.canvas#imagePlaybackCanvas(width=500, height=500)
+
+					.buttonGroup#votingButtons
+						a.button.is-success(data-action="upvote")
+							span= "Great!"
+							span.icon.is-small
+								i.fa.fa-thumbs-up
+						a.button.is-warning(data-action="downvote")
+							span= "Shit!"
+							span.icon.is-small
+								i.fa.fa-thumbs-down
+						a.button.is-info(data-action="funny")
+							span= "lol"
+							span.icon.is-small
+								i.fa.fa-smile-o
 
 		.columns
 			.column#canvasOutlet

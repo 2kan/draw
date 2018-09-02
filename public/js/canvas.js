@@ -52,7 +52,7 @@ function SendImage()
 	// Check if everyone's submitted their turn
 	if ( RoundIsReadyForReplay() )
 	{
-		DrawOpponentCanvasses();
+		DrawNextOpponentCanvas();
 	}
 }
 
