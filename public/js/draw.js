@@ -78,6 +78,11 @@ socket.on( "resetRound", function ( a_data )
 	ResetRound();
 } );
 
+socket.on( "gifData", function ( a_data )
+{
+	console.log( a_data );
+} );
+
 
 
 $( document ).ready( function ()
@@ -112,7 +117,7 @@ $( document ).ready( function ()
 	} );
 
 
-	$( "#votingButtons button[data-action]" ).on( "click", function ()
+	$( "#votingButtons button[data-action]" ).on( "click", () =>
 	{
 		socket.emit( "vote", {
 			id: $( this ).data( "id" ),
@@ -129,25 +134,22 @@ $( document ).ready( function ()
 
 	$( "#exportToGif" ).on( "click", function ()
 	{
-		var targetDrawEvents;
-		var filename = "";
+		console.log( "old" );
+
+		// Generate the filename. Man this is a lot of code for something that should be simple
 		const targetId = $( this ).data( "id" );
+		var filename = "blep";
 		for ( var i = 0; i < opponents.length; ++i )
 		{
 			if ( opponents[ i ].id == targetId )
 			{
-				targetDrawEvents = opponents[ i ].imageData;
 				const timestamp = ( new Date() ).toISOString().replace( "T", " " ).substring( 0, 19 );
-				filename = `${ APP_NAME } ${ opponents[ i ].name } ${ timestamp }.gif`;
+				filename = `${ APP_NAME } ${ opponents[ i ].name } ${ timestamp }`;
 				break;
 			}
 		}
 
-		$( this ).addClass( "is-loading" );
-		ExportToGif( filename, targetDrawEvents, () =>
-		{
-			$( this ).removeClass( "is-loading" );
-		} );
+		DownloadWebm( filename );
 	} );
 
 
@@ -229,11 +231,6 @@ function ResetRound()
 
 function DrawNextOpponentCanvas()
 {
-	/*for ( var i = 0; i < opponents.length; ++i )
-	{
-		OpponentRedraw( opponents[ i ].context, opponents[ i ].imageData );
-	}*/
-
 	ToggleDrawingModal( true );
 
 	var drawnCanvases = 0;
@@ -243,10 +240,25 @@ function DrawNextOpponentCanvas()
 		{
 			$( "#imageDrawingModal .modal-card-title" ).text( "Watching: " + opponents[ i ].name );
 			InitVoteButtons( opponents[ i ].id );
-			OpponentRedraw( $( "#imagePlaybackCanvas" )[ 0 ].getContext( "2d" ), opponents[ i ].imageData, function ()
-			{
-				EnableVotingButtons();
-			} );
+
+			const canvas = $( "#imagePlaybackCanvas" )[ 0 ];
+
+			OpponentRedraw( canvas.getContext( "2d" ), opponents[ i ].imageData,
+				// onStart
+				function ()
+				{
+					// Start recording canvas
+					StartWebmRecording( canvas );
+				},
+				// onEnd
+				function ()
+				{
+					EnableVotingButtons();
+
+					// Stop recording and finalize link
+					StopWebmRecording();
+				}
+			);
 
 			opponents[ i ].drawnCanvas = true;
 			break;
@@ -278,11 +290,18 @@ function EnableVotingButtons()
 // Here's where I copy and paste the normal canvas code to work for one opponent
 // todo: make this not shit
 //
-async function OpponentRedraw( a_context, a_drawEvent, a_doneCallback )
+async function OpponentRedraw( a_context, a_drawEvent, a_startCallback, a_doneCallback )
 {
 	a_context.clearRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
 
+	// Draw white background
+	a_context.fillStyle = "#ffffff";
+	a_context.fillRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
+
 	a_context.lineJoin = "round";
+
+	if ( a_startCallback )
+		a_startCallback();
 
 	for ( var i = 0; i < a_drawEvent.length; ++i )
 	{

@@ -1,81 +1,42 @@
-function ExportToGif( a_filename, a_drawEvents, a_doneCallback )
+// The below is pretty sloppy. It's the result of hours spent trying to export a
+// GIF of the canvas but not being satisfied with 30+ second processing times.
+//
+// The below technically works because a user can only have one opponent's drawing data
+// played back at a time.
+//
+// I know it's horrible, but it's all I've got left. I'll revisit this once the rest of
+// the features are complete.
+//
+// A good start would be refactoring most of the app to be nicely segregated into classes.
+// Who said isolation was a bad thing? Hah, it's a play on words.
+
+var _gifRec;
+var _chunks;
+
+function StartWebmRecording( a_canvas )
 {
-	const startTime = new Date() - 0;
+	_chunks = [];
+	const stream = a_canvas.captureStream();
+	_gifRec = new MediaRecorder( stream );
 
-	$( "body" ).append( "<canvas id='gifCanvas' class='canvas opponentCanvas' width=500 height=500 style='display: none' />" );
-	const canvas = $( "#gifCanvas" );
-	const context = canvas[ 0 ].getContext( "2d" )
+	_gifRec.ondataavailable = e => _chunks.push( e.data );
 
-	context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
-	context.fillStyle = "white";
-	context.fillRect( 0, 0, context.canvas.width, context.canvas.height );
+	_gifRec.start();
+}
 
-	context.lineJoin = "round";
+function StopWebmRecording()
+{
+	_gifRec.stop();
+	//ExportVid(new Blob( _chunks, { type: "video/webm" } ));
+}
 
-	var gifWorker = new Worker( "/js/gifWorker.js" );
-	gifWorker.postMessage( {drawEvents: a_drawEvents } );
+function DownloadWebm(a_filename)
+{
+	const url = URL.createObjectURL( new Blob( _chunks, { type: "video/webm" } ) );
+	const link = document.createElement( "a" );
 
-	gifWorker.onmessage = function ( a_event )
-	{
-		if ( a_event.done )
-		{
-			console.log( `GIF generated in ${ ( new Date() - startTime ) / 1000 } seconds` );
-
-			$( "#gifCanvas" ).remove();
-
-			if ( a_doneCallback )
-				a_doneCallback();
-		}
-
-	}
-
-	/*var gif = new GIF( {
-		workers: 10,
-		quality: 1,
-		width: 500,
-		height: 500,
-		workerScript: "/js/gif.worker.js"
-	} );
-
-	for ( var i = 0; i < a_drawEvents.length; ++i )
-	{
-		context.strokeStyle = a_drawEvents[ i ].color;
-		context.lineWidth = a_drawEvents[ i ].size;
-
-		context.beginPath();
-
-		if ( a_drawEvents[ i ].dragging && i )
-		{
-			context.moveTo( a_drawEvents[ i - 1 ].x, a_drawEvents[ i - 1 ].y );
-		}
-		else
-		{
-			context.moveTo( a_drawEvents[ i ].x - 1, a_drawEvents[ i ].y );
-		}
-
-		context.lineTo( a_drawEvents[ i ].x, a_drawEvents[ i ].y );
-
-		context.closePath();
-		context.stroke();
-
-		const delay = i == a_drawEvents.length - 1 ? 2000 : 20;
-		gif.addFrame( context, { copy: true, delay: delay } );
-	}
-
-	// Create handler for when the gif has finished rendering
-	gif.on( "finished", function ( blob )
-	{
-		console.log( `GIF generated in ${ ( new Date() - startTime ) / 1000 } seconds` );
-
-		const url = URL.createObjectURL( blob );
-		console.log( url );
-		window.open( url, "_blank" );
-
-		$( "#gifCanvas" ).remove();
-
-		if ( a_doneCallback )
-			a_doneCallback();
-	} );
-
-	gif.render();*/
+	link.href = url
+	link.download = a_filename;
+	link.click();
+	window.URL.revokeObjectURL( url );
 }
