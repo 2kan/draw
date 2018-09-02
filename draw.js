@@ -21,8 +21,8 @@ const UserManager = require( "./UserManager.js" );
 const _UserManager = new UserManager( io );
 
 
-
-http.listen( 3000, function ()
+const port = 5500;
+http.listen( port, function ()
 {
-	console.log( "Listening on 3000" );
+	console.log( "Listening on " + port );
 } );
