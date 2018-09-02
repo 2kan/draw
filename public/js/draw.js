@@ -168,8 +168,9 @@ function CreateOpponent( a_opponentData )
 		opponents.push( thisOpponent );
 	}
 
+	const thisPlayerClass = a_opponentData.id == _id ? "player" : "";
 	$( "#userOutlet" ).append(
-		"<div class='panel-block' data-opponent-id='" + a_opponentData.id + "'>" +
+		"<div class='panel-block " + thisPlayerClass + "' data-opponent-id='" + a_opponentData.id + "'>" +
 		"	<span class='panel-icon'><i class='fas fa-meh-blank'></i></span>" +
 		a_opponentData.name +
 		"</div>"
@@ -300,23 +301,36 @@ function UpdatePlayerListWithScores( a_scores )
 	const downvoteLeader = a_scores.total.mostDownvotes.id;
 	const funnyLeader = a_scores.total.mostFunny.id;
 
+	const roundWinner = a_scores.lastRound.mostUpvotes.id;
+
 	const playerList = $( "#userOutlet .panel-block" );
 	for ( var i = 0; i < playerList.length; ++i )
 	{
-		var thisId = $( playerList[ i ] ).data( "id" );
+		var thisId = $( playerList[ i ] ).data( "opponent-id" );
 
 		if ( funnyLeader == thisId || upvoteLeader == thisId || downvoteLeader == thisId )
 		{
+			// Funny
 			if ( thisId == funnyLeader )
 				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-grin-squint-tears" );
 
+			// Downvote
+			if ( thisId == downvoteLeader )
+				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-frown-open" );
+
+			// Upvote
 			if ( thisId == upvoteLeader )
 				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-crown" );
 
-			if ( thisId == downvoteLeader )
-				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-frown-open" );
+
+			// Round winner
+			if ( thisId == roundWinner )
+				$( playerList[ i ] ).addClass( "roundWinner" );
+			else
+				$( playerList[ i ] ).removeClass( "roundWinner" );
 		}
 		else
+			// Not a leader, so return their icon to a meh face
 			$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-meh-blank" );
 	}
 }

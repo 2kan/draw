@@ -51,3 +51,12 @@ body
 	color: #ff3860;
 }
 
+#userOutlet .roundWinner
+{
+	font-style: italic;
+}
+
+#userOutlet .player
+{
+	text-decoration: underline;
+}
