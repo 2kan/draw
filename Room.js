@@ -17,14 +17,14 @@ module.exports = class Room
 		this.state = this.STATES.ROUND_START;
 	}
 
-	AddUser( a_userId )
+	AddUser( a_userId, a_username )
 	{
 		console.log( "id " + a_userId + " joined room!" );
 		//console.log( this.users );
 		const id = this.userCount;
 		++this.userCount;
 
-		this.EmitToRoom( a_userId, "playerJoinedRoom", { id: a_userId, name: a_userId } );
+		this.EmitToRoom( a_userId, "playerJoinedRoom", { id: a_userId, name: a_username } );
 		this._usrmgr.EmitToUser( a_userId, "playerList", this.users );
 
 		this.users.push( { id: a_userId, name: a_userId } );

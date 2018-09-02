@@ -12,6 +12,18 @@ html
 		link(rel="stylesheet", href="/css/font-awesome.min.css")
 
 	body
+		.modal#usernameSelectModal
+			.modal-background
+			.modal-card
+				.modal-card-head
+					p.modal-card-title= "Enter a username"
+				.modal-card-body
+					.field.has-addons
+						.control.is-expanded
+							input.input#username(type="text", placeholder="Username")
+						.control
+							a.button.is-info#submitUsername= "Join"
+
 		.columns
 			.column#canvasOutlet
 				canvas.canvas#drawCanvas(width=500, height=500)

@@ -24,3 +24,8 @@ body
 {
 	background-color: #888;
 }
+
+#usernameSelectModal .modal-card
+{
+	margin-top: 50px;
+}

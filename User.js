@@ -6,6 +6,7 @@ module.exports = class User
 	{
 		this._usrmgr = a_userManager;
 		this.id = a_id;
+		this.username = "some idiot";
 		this.sock = a_socket;
 		this.SetupUser();
 
@@ -33,11 +34,11 @@ module.exports = class User
 			this.ReceivedImage( a_msg );
 		} );
 
-		this.sock.on( "joinRoom", ( a_roomId ) =>
+		this.sock.on( "joinRoom", ( a_joinData ) =>
 		{
-			console.log( "Joined room" );
-			this.roomObj = this._usrmgr.JoinRoom( this.id, a_roomId );
-			console.log( this.roomObj );
+			console.log( "Joined room " + a_joinData.roomId + " with username " + a_joinData.username );
+			this.username = a_joinData.username;
+			this.roomObj = this._usrmgr.JoinRoom( this.id, this.username, a_joinData.roomId );
 		} );
 
 		this.sock.on( "resetRound", ( a_msg ) =>

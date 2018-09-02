@@ -1,9 +1,9 @@
 var socket = io();
-socket.emit( "joinRoom", "0" );
 
 var _drawProgressively = true;
 var opponents = [];
 var _imageSubmitted = false;
+var _username
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
 {
@@ -58,12 +58,10 @@ socket.on( "resetRound", function ( a_data )
 	ResetRound();
 } );
 
+
+
 $( document ).ready( function ()
 {
-	// bleh
-	// will fix this later once my tests work
-	//opponentCanvasses.push( $( ".opponentCanvas" )[ 0 ] );
-
 	$( "#resetRoundButton" ).on( "click", function ()
 	{
 		socket.emit( "resetRound", { ok: true } );
@@ -74,9 +72,38 @@ $( document ).ready( function ()
 		SendImage();
 		$( "#submit" ).prop( "disabled", true );
 	} );
+
+	$( "#submitUsername" ).on( "click", function ()
+	{
+		const user = $( "#username" ).val();
+
+		if ( UsernameIsValid( user ) )
+		{
+			_username = user;
+			socket.emit( "joinRoom", { roomId: 0, username: _username } );
+			ToggleUsernameModal( false );
+		}
+		else
+		{
+			$( "#username" ).addClass( "is-danger" );
+			$( "#username" ).val( "" );
+		}
+	} );
+
+	ToggleUsernameModal( true );
 } );
 
 
+function ToggleUsernameModal( a_show )
+{
+	$( "#usernameSelectModal" ).css( "display", a_show ? "inherit" : "none" );
+}
+
+function UsernameIsValid( a_username )
+{
+	// Disallow spaces for usernames with minimum length of 1 character
+	return a_username.match( /^\S+$/ ) != undefined;
+}
 
 function CreateOpponent( a_opponentData )
 {

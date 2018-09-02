@@ -32,13 +32,13 @@ module.exports = class UserManager
 		return id;
 	}
 
-	JoinRoom( a_userId, a_roomId )
+	JoinRoom( a_userId, a_username, a_roomId )
 	{
 		var roomObj = this.GetRoom( a_roomId );
 		if ( !roomObj )
 			return false;
 
-		roomObj.room.AddUser( a_userId );
+		roomObj.room.AddUser( a_userId, a_username );
 		return roomObj;
 	}
 
