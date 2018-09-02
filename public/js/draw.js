@@ -216,9 +216,12 @@ function DrawNextOpponentCanvas()
 		if ( !opponents[ i ].drawnCanvas )
 		{
 			$( "#imageDrawingModal .modal-card-title" ).text( "Watching: " + opponents[ i ].name );
-			SetVoteButtons( opponents[ i ].id );
-			OpponentRedraw( $( "#imagePlaybackCanvas" )[ 0 ].getContext( "2d" ), opponents[ i ].imageData );
-			
+			InitVoteButtons( opponents[ i ].id );
+			OpponentRedraw( $( "#imagePlaybackCanvas" )[ 0 ].getContext( "2d" ), opponents[ i ].imageData, function ()
+			{
+				EnableVotingButtons();
+			} );
+
 			opponents[ i ].drawnCanvas = true;
 			break;
 		}
@@ -228,11 +231,20 @@ function DrawNextOpponentCanvas()
 	return drawnCanvases < opponents.length;
 }
 
-function SetVoteButtons( a_opponentId )
+function InitVoteButtons( a_opponentId )
 {
-	$( "#votingButtons" ).each( ( a_index, a_element ) =>
+	$( "#votingButtons button" ).each( ( a_index, a_element ) =>
 	{
 		$( a_element ).data( "id", a_opponentId );
+		$( a_element ).prop( "disabled", true );
+	} );
+}
+
+function EnableVotingButtons()
+{
+	$( "#votingButtons button" ).each( ( a_index, a_element ) =>
+	{
+		$( a_element ).prop( "disabled", false );
 	} );
 }
 
@@ -240,7 +252,7 @@ function SetVoteButtons( a_opponentId )
 // Here's where I copy and paste the normal canvas code to work for one opponent
 // todo: make this not shit
 //
-async function OpponentRedraw( a_context, a_drawEvent )
+async function OpponentRedraw( a_context, a_drawEvent, a_doneCallback )
 {
 	a_context.clearRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
 
@@ -270,6 +282,9 @@ async function OpponentRedraw( a_context, a_drawEvent )
 		if ( _drawProgressively )
 			await sleep( 20 );
 	}
+
+	if ( a_doneCallback )
+		a_doneCallback();
 }
 
 function sleep( a_millis )
