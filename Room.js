@@ -23,7 +23,7 @@ module.exports = class Room
 		//console.log( this.users );
 		const id = this.userCount;
 		++this.userCount;
-		this.users.push( { id: a_userId, name: a_userId } );
+		this.users.push( { id: a_userId, name: a_username } );
 
 		this.EmitToRoom( a_userId, "playerJoinedRoom", { id: a_userId, name: a_username } );
 		this._usrmgr.EmitToUser( a_userId, "playerList", this.users );
