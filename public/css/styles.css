@@ -34,3 +34,20 @@ body
 {
 	margin-right: 10px;
 }
+
+
+#userOutlet i.fas.fa-grin-squint-tears
+{
+	color: #209cee;
+}
+
+#userOutlet i.fas.fa-crown
+{
+	color: gold;
+}
+
+#userOutlet i.fas.fa-frown-open
+{
+	color: #ff3860;
+}
+

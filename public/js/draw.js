@@ -64,6 +64,12 @@ socket.on( "playerLeftRoom", function ( a_opponent )
 	}
 } );
 
+socket.on( "scoreUpdate", function ( a_scoreData )
+{
+	console.log( a_scoreData );
+	UpdatePlayerListWithScores( a_scoreData );
+} );
+
 socket.on( "resetRound", function ( a_data )
 {
 	console.log( "Received round reset message" );
@@ -104,7 +110,7 @@ $( document ).ready( function ()
 	} );
 
 
-	$( "#votingButtons" ).on( "click", function ()
+	$( "#votingButtons button" ).on( "click", function ()
 	{
 		socket.emit( "vote", {
 			id: $( this ).data( "id" ),
@@ -114,6 +120,7 @@ $( document ).ready( function ()
 		if ( !DrawNextOpponentCanvas() )
 		{
 			ToggleDrawingModal( false );
+			socket.emit( "finishedVoting" );
 			// round is over
 		}
 	} );
@@ -163,7 +170,7 @@ function CreateOpponent( a_opponentData )
 
 	$( "#userOutlet" ).append(
 		"<div class='panel-block' data-opponent-id='" + a_opponentData.id + "'>" +
-		"	<span class='panel-icon'><i class='fa fa-user'></i></span>" +
+		"	<span class='panel-icon'><i class='fas fa-meh-blank'></i></span>" +
 		a_opponentData.name +
 		"</div>"
 	);
@@ -286,6 +293,35 @@ async function OpponentRedraw( a_context, a_drawEvent, a_doneCallback )
 	if ( a_doneCallback )
 		a_doneCallback();
 }
+
+function UpdatePlayerListWithScores( a_scores )
+{
+	const upvoteLeader = a_scores.total.mostUpvotes.id;
+	const downvoteLeader = a_scores.total.mostDownvotes.id;
+	const funnyLeader = a_scores.total.mostFunny.id;
+
+	const playerList = $( "#userOutlet .panel-block" );
+	for ( var i = 0; i < playerList.length; ++i )
+	{
+		var thisId = $( playerList[ i ] ).data( "id" );
+
+		if ( funnyLeader == thisId || upvoteLeader == thisId || downvoteLeader == thisId )
+		{
+			if ( thisId == funnyLeader )
+				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-grin-squint-tears" );
+
+			if ( thisId == upvoteLeader )
+				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-crown" );
+
+			if ( thisId == downvoteLeader )
+				$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-frown-open" );
+		}
+		else
+			$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-meh-blank" );
+	}
+}
+
+
 
 function sleep( a_millis )
 {
