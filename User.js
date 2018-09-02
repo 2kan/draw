@@ -59,6 +59,13 @@ module.exports = class User
 		this.sock.on( "vote", ( a_msg ) =>
 		{
 			console.log( "id " + this.id + " submitted vote: " + JSON.stringify( a_msg ) );
+			this.roomObj.room.Vote( this.id, a_msg );
+		} );
+
+		this.sock.on( "finishedVoting", () =>
+		{
+			console.log( "id " + this.id + " is finished voting" );
+			this.roomObj.room.UserFinishedVoting( this.id );
 		} );
 	}
 
