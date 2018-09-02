@@ -116,8 +116,6 @@ function RoundIsReadyForReplay()
 			++opponentsReady;
 	}
 
-	console.log( opponentsReady == opponents.length && _imageSubmitted );
-	console.log( ( opponentsReady == opponents.length ) && ( _imageSubmitted ) );
 	return opponentsReady == opponents.length && _imageSubmitted;
 }
 
@@ -133,6 +131,7 @@ function ResetRound()
 		opponents[ i ].context.clearRect( 0, 0, opponents[ i ].context.canvas.width, opponents[ i ].context.canvas.height );
 	}
 
+	_imageSubmitted = false;
 	ResetCanvas();
 	$( "#submit" ).prop( "disabled", false );
 }
