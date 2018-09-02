@@ -28,6 +28,8 @@ module.exports = class UserManager
 
 		var newUser = new User( this, id, a_sock );
 		this.users[ id ] = newUser;
+		
+		this.EmitToUser( id, "welcome", { id: id } );
 
 		return id;
 	}

@@ -3,7 +3,13 @@ var socket = io();
 var _drawProgressively = true;
 var opponents = [];
 var _imageSubmitted = false;
-var _username
+var _username = "some idiot";
+var _id = -1;
+
+socket.on( "welcome", function ( a_welcomeData )
+{
+	_id = a_welcomeData.id;
+} );
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
 {
@@ -69,8 +75,9 @@ $( document ).ready( function ()
 
 	$( "#submit" ).on( "click", function ()
 	{
-		SendImage();
+		$( "#userOutlet [data-opponent-id='" + _id + "']" ).css( "font-weight", "bold" );
 		$( "#submit" ).prop( "disabled", true );
+		SendImage();
 	} );
 
 	$( "#submitUsername" ).on( "click", function ()
@@ -107,27 +114,30 @@ function UsernameIsValid( a_username )
 
 function CreateOpponent( a_opponentData )
 {
-	$( "#canvasOutlet" ).append(
-		"<br data-opponent-id='" + a_opponentData.id + "' />" + // lol
-		"<canvas class='canvas opponentCanvas' width=500 height=500 " +
-		"data-opponent-id='" + a_opponentData.id + "' />"
-	);
+	if ( a_opponentData.name != _username )
+	{
+		$( "#canvasOutlet" ).append(
+			"<br data-opponent-id='" + a_opponentData.id + "' />" + // lol
+			"<canvas class='canvas opponentCanvas' width=500 height=500 " +
+			"data-opponent-id='" + a_opponentData.id + "' />"
+		);
 
-	var thisOpponent = {
-		id: a_opponentData.id,
-		name: a_opponentData.name,
-		imageSubmitted: false,
-		imageData: undefined,
-		context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
-			.getContext( "2d" )
-	};
+		var thisOpponent = {
+			id: a_opponentData.id,
+			name: a_opponentData.name,
+			imageSubmitted: false,
+			imageData: undefined,
+			context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
+				.getContext( "2d" )
+		};
 
-	opponents.push( thisOpponent );
+		opponents.push( thisOpponent );
+	}
 
 	$( "#userOutlet" ).append(
-		"<div class='panel-block' data-opponent-id='" + thisOpponent.id + "'>" +
+		"<div class='panel-block' data-opponent-id='" + a_opponentData.id + "'>" +
 		"	<span class='panel-icon'><i class='fa fa-user'></i></span>" +
-		thisOpponent.name +
+		a_opponentData.name +
 		"</div>"
 	);
 }
@@ -161,6 +171,10 @@ function ResetRound()
 	_imageSubmitted = false;
 	ResetCanvas();
 	$( "#submit" ).prop( "disabled", false );
+
+	for ( var i = 0; i < opponents.length; ++i )
+		$( "#userOutlet [data-opponent-id='" + opponents.id + "']" ).css( "font-weight", "normal" );
+	$( "#userOutlet [data-opponent-id='" + _id + "']" ).css( "font-weight", "normal" );
 }
 
 
