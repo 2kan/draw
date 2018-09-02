@@ -143,3 +143,9 @@ function CreateCanvas( a_canvasId )
 		penSize = sizeEnum.BIG;
 	} );
 }
+
+function ResetCanvas()
+{
+	context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+	drawEvent = [];
+}

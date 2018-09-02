@@ -7,6 +7,7 @@ var _imageSubmitted = false;
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
 {
+	console.log( "Opponent " + a_opponentData.id + " joined the room" );
 	CreateOpponent( a_opponentData );
 } );
 
@@ -18,6 +19,7 @@ socket.on( "playerList", function ( a_opponents )
 
 socket.on( "opponentImageData", function ( a_opponentImage )
 {
+	console.log( "Received image data for opponent " + a_opponentImage.id );
 	console.log( a_opponentImage );
 
 	// Get the opponent that submitted the image
@@ -30,8 +32,6 @@ socket.on( "opponentImageData", function ( a_opponentImage )
 	opponent.imageData = a_opponentImage.imageData;
 	$( "#userOutlet [data-opponent-id='" + a_opponentImage.id + "']" ).css( "font-weight", "bold" );
 
-
-
 	// Check if everyone's submitted their turn
 	if ( RoundIsReadyForReplay() )
 	{
@@ -42,6 +42,7 @@ socket.on( "opponentImageData", function ( a_opponentImage )
 
 socket.on( "playerLeftRoom", function ( a_opponent )
 {
+	console.log( "Opponent " + a_opponent.id + " left the room" );
 	$( "[data-opponent-id='" + a_opponent.id + "']" ).remove();
 
 	for ( var i = 0; i < opponents.length; ++i )
@@ -51,11 +52,28 @@ socket.on( "playerLeftRoom", function ( a_opponent )
 	}
 } );
 
+socket.on( "resetRound", function ( a_data )
+{
+	console.log( "Received round reset message" );
+	ResetRound();
+} );
+
 $( document ).ready( function ()
 {
 	// bleh
 	// will fix this later once my tests work
 	//opponentCanvasses.push( $( ".opponentCanvas" )[ 0 ] );
+
+	$( "#resetRoundButton" ).on( "click", function ()
+	{
+		socket.emit( "resetRound", { ok: true } );
+	} );
+
+	$( "#submit" ).on( "click", function ()
+	{
+		SendImage();
+		$( "#submit" ).prop( "disabled", true );
+	} );
 } );
 
 
@@ -98,6 +116,8 @@ function RoundIsReadyForReplay()
 			++opponentsReady;
 	}
 
+	console.log( opponentsReady == opponents.length && _imageSubmitted );
+	console.log( ( opponentsReady == opponents.length ) && ( _imageSubmitted ) );
 	return opponentsReady == opponents.length && _imageSubmitted;
 }
 
@@ -112,6 +132,9 @@ function ResetRound()
 		// Clear canvasses
 		opponents[ i ].context.clearRect( 0, 0, opponents[ i ].context.canvas.width, opponents[ i ].context.canvas.height );
 	}
+
+	ResetCanvas();
+	$( "#submit" ).prop( "disabled", false );
 }
 
 

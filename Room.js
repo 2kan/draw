@@ -2,12 +2,19 @@
 
 module.exports = class Room
 {
-	constructor( a_userManager, a_roomId )
+	constructor ( a_userManager, a_roomId )
 	{
 		this._usrmgr = a_userManager;
 		this.roomId = a_roomId;
 		this.users = [];
 		this.userCount = 0;
+
+		this.STATES = {
+			ROUND_START: 0,
+			ROUND_IN_PROGRESS: 1,
+			ROUND_END: 2
+		};
+		this.state = this.STATES.ROUND_START;
 	}
 
 	AddUser( a_userId )
@@ -49,6 +56,12 @@ module.exports = class Room
 			if ( this.users[ i ].id == a_userId )
 				return this.users[ i ];
 		}
+	}
+
+	ResetRound()
+	{
+		this.state = this.STATES.ROUND_START;
+		this.EmitToRoom( -1, "resetRound", { reset: true } );
 	}
 
 	EmitToRoom( a_senderId, a_messageName, a_value )

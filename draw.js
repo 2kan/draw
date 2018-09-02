@@ -4,11 +4,11 @@ const path = require( "path" );
 const express = require( "express" );
 const app = express();
 const http = require( "http" ).Server( app );
-const io = require( "socket.io" )( http );
+const io = require( "socket.io" )( http, { wsEngine: "ws" } );
 
 const PUBLIC_HTML = "public";
 
-app.use( express.static( "public" ) );
+app.use( express.static( PUBLIC_HTML ) );
 /*app.get( "/", function ( a_req, a_res )
 {
 	a_res.sendFile( path.join( __dirname, PUBLIC_HTML, "index.html" ) );

@@ -2,7 +2,7 @@
 
 module.exports = class User
 {
-	constructor( a_userManager, a_id, a_socket )
+	constructor ( a_userManager, a_id, a_socket )
 	{
 		this._usrmgr = a_userManager;
 		this.id = a_id;
@@ -35,7 +35,15 @@ module.exports = class User
 
 		this.sock.on( "joinRoom", ( a_roomId ) =>
 		{
+			console.log( "Joined room" );
 			this.roomObj = this._usrmgr.JoinRoom( this.id, a_roomId );
+			console.log( this.roomObj );
+		} );
+
+		this.sock.on( "resetRound", ( a_msg ) =>
+		{
+			console.log( "Reset room called" );
+			this.roomObj.room.ResetRound();
 		} );
 	}
 
