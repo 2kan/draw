@@ -6,6 +6,8 @@ var _imageSubmitted = false;
 var _username = "some idiot";
 var _id = -1;
 
+const APP_NAME = "draw";
+
 socket.on( "welcome", function ( a_welcomeData )
 {
 	_id = a_welcomeData.id;
@@ -110,7 +112,7 @@ $( document ).ready( function ()
 	} );
 
 
-	$( "#votingButtons button" ).on( "click", function ()
+	$( "#votingButtons button[data-action]" ).on( "click", function ()
 	{
 		socket.emit( "vote", {
 			id: $( this ).data( "id" ),
@@ -124,6 +126,30 @@ $( document ).ready( function ()
 			// round is over
 		}
 	} );
+
+	$( "#exportToGif" ).on( "click", function ()
+	{
+		var targetDrawEvents;
+		var filename = "";
+		const targetId = $( this ).data( "id" );
+		for ( var i = 0; i < opponents.length; ++i )
+		{
+			if ( opponents[ i ].id == targetId )
+			{
+				targetDrawEvents = opponents[ i ].imageData;
+				const timestamp = ( new Date() ).toISOString().replace( "T", " " ).substring( 0, 19 );
+				filename = `${ APP_NAME } ${ opponents[ i ].name } ${ timestamp }.gif`;
+				break;
+			}
+		}
+
+		$( this ).addClass( "is-loading" );
+		ExportToGif( filename, targetDrawEvents, () =>
+		{
+			$( this ).removeClass( "is-loading" );
+		} );
+	} );
+
 
 	ToggleUsernameModal( true );
 } );
@@ -149,20 +175,12 @@ function CreateOpponent( a_opponentData )
 {
 	if ( a_opponentData.id != _id )
 	{
-		/*$( "#canvasOutlet" ).append(
-			"<br data-opponent-id='" + a_opponentData.id + "' />" + // lol
-			"<canvas class='canvas opponentCanvas' width=500 height=500 " +
-			"data-opponent-id='" + a_opponentData.id + "' />"
-		);*/
-
 		var thisOpponent = {
 			id: a_opponentData.id,
 			name: a_opponentData.name,
 			imageSubmitted: false,
 			imageData: undefined,
 			drawnCanvas: false
-			//context: $( "canvas[data-opponent-id='" + a_opponentData.id + "']" )[ 0 ]
-			//	.getContext( "2d" )
 		};
 
 		opponents.push( thisOpponent );
@@ -334,8 +352,6 @@ function UpdatePlayerListWithScores( a_scores )
 			$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-meh-blank" );
 	}
 }
-
-
 
 function sleep( a_millis )
 {

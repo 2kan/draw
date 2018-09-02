@@ -4,6 +4,12 @@ html
 
 		script(src="/socket.io/socket.io.js")
 		script(src="/js/jquery.min.js")
+
+		script(src="/js/LZWEncoder.js")
+		script(src="/js/NeuQuant.js")
+		script(src="/js/GIFEncoder.js")
+		script(src="/js/gifHelper.js")
+		
 		script(src="/js/canvas.js")
 		script(src="/js/draw.js")
 
@@ -46,6 +52,12 @@ html
 							span= "lol"
 							span.icon.is-small
 								i.fa.fa-grin-squint-tears
+
+						button.button.is-link.is-outlined#exportToGif
+							span= "Export to GIF"
+							span.icon.is-small
+								i.fas.fa-download
+
 
 		.columns
 			.column#canvasOutlet
