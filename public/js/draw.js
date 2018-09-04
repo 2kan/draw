@@ -20,7 +20,7 @@ socket.on( "joinRoomResult", function ( a_result )
 		alert( "Could not join room! Reason: " + a_result.reason );
 
 		
-	_prompt = a_roundData.prompt;
+	_prompt = a_result.prompt;
 	$( "#prompt" ).text( _prompt );
 } );
 
