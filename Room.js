@@ -84,6 +84,11 @@ module.exports = class Room
 		for ( var i = 0; i < this.users.length; ++i )
 			if ( this.users[ i ].id == a_userId )
 				this.users.splice( i, 1 );
+
+		if ( this.users.length <= 0 )
+		{
+			this.ResetRound();
+		}
 	}
 
 	GetUsers()
@@ -249,6 +254,8 @@ module.exports = class Room
 
 	SubmitImage( a_senderId, a_imageData )
 	{
+		this.state = this.STATES.ROUND_IN_PROGRESS;
+
 		this.EmitToRoom( a_senderId, "opponentImageData", {
 			id: a_senderId,
 			imageData: a_imageData
