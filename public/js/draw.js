@@ -19,7 +19,7 @@ socket.on( "joinRoomResult", function ( a_result )
 	if ( !a_result.ok )
 		alert( "Could not join room! Reason: " + a_result.reason );
 
-		
+
 	_prompt = a_result.prompt;
 	$( "#prompt" ).text( _prompt );
 } );
@@ -248,7 +248,7 @@ function DrawNextOpponentCanvas()
 
 			const canvas = $( "#imagePlaybackCanvas" )[ 0 ];
 
-			OpponentRedraw( canvas.getContext( "2d" ), opponents[ i ].imageData,
+			OpponentRedraw( canvas.getContext( "2d" ), opponents[ i ],
 				// onStart
 				function ()
 				{
@@ -295,9 +295,10 @@ function EnableVotingButtons()
 // Here's where I copy and paste the normal canvas code to work for one opponent
 // todo: make this not shit
 //
-async function OpponentRedraw( a_context, a_drawEvent, a_startCallback, a_doneCallback )
+async function OpponentRedraw( a_context, a_opponent, a_startCallback, a_doneCallback )
 {
 	const yOffset = 50;
+	const drawEvents = a_opponent.imageData;
 
 	a_context.clearRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
 
@@ -306,37 +307,42 @@ async function OpponentRedraw( a_context, a_drawEvent, a_startCallback, a_doneCa
 	a_context.fillRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
 
 	a_context.fillStyle = "#e6d08e";
-	a_context.fillRect( 0, 0, a_context.canvas.width, 50 );
-	//c.fillRect( 0, c.canvas.height - 50, c.canvas.width, 50 );
+	a_context.fillRect( 0, 0, a_context.canvas.width, yOffset );
+	a_context.fillRect( 0, a_context.canvas.height - yOffset, a_context.canvas.width, 50 );
 
+	// Insert watermarks on canvas
 	a_context.fillStyle = "#000000"
 	a_context.font = "20px sans-serif";
-	var title = a_context.measureText( _prompt, 10, 20 );
-	console.log( title );
-	a_context.fillText( _prompt, ( a_context.canvas.width - title.width ) / 2, 30 );
+	const titleMetrics = a_context.measureText( _prompt );
+
+	const usernameWatermark = "Drawn by " + a_opponent.name
+	const usernameMetrics = a_context.measureText( usernameWatermark );
+
+	a_context.fillText( _prompt, ( a_context.canvas.width - titleMetrics.width ) / 2, 30 );
+	a_context.fillText( usernameWatermark, ( a_context.canvas.width - usernameMetrics.width ) / 2, a_context.canvas.height - 16 );
 
 	a_context.lineJoin = "round";
 
 	if ( a_startCallback )
 		a_startCallback();
 
-	for ( var i = 0; i < a_drawEvent.length; ++i )
+	for ( var i = 0; i < drawEvents.length; ++i )
 	{
-		a_context.strokeStyle = a_drawEvent[ i ].color;
-		a_context.lineWidth = a_drawEvent[ i ].size;
+		a_context.strokeStyle = drawEvents[ i ].color;
+		a_context.lineWidth = drawEvents[ i ].size;
 
 		a_context.beginPath();
 
-		if ( a_drawEvent[ i ].dragging && i )
+		if ( drawEvents[ i ].dragging && i )
 		{
-			a_context.moveTo( a_drawEvent[ i - 1 ].x, a_drawEvent[ i - 1 ].y );
+			a_context.moveTo( drawEvents[ i - 1 ].x, drawEvents[ i - 1 ].y + yOffset );
 		}
 		else
 		{
-			a_context.moveTo( a_drawEvent[ i ].x - 1, a_drawEvent[ i ].y );
+			a_context.moveTo( drawEvents[ i ].x - 1, drawEvents[ i ].y + yOffset );
 		}
 
-		a_context.lineTo( a_drawEvent[ i ].x, a_drawEvent[ i ].y );
+		a_context.lineTo( drawEvents[ i ].x, drawEvents[ i ].y + yOffset );
 
 		a_context.closePath();
 		a_context.stroke();
