@@ -46,7 +46,7 @@ module.exports = class User
 			else
 			{
 				this.roomObj = joinSuccess;
-				this._usrmgr.EmitToUser( this.id, "joinRoomResult", { ok: true } );
+				this._usrmgr.EmitToUser( this.id, "joinRoomResult", { ok: true, prompt: this.roomObj.room.prompt } );
 			}
 		} );
 

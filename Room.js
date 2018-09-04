@@ -1,5 +1,18 @@
 "use strict"
 
+const dictionary = [
+	"Her Madge",
+	"her minge",
+	"you'll have to speak up I'm wearing a towel",
+	"He's grooming me",
+	"dignity",
+	"fake moon landing",
+	"chekun",
+	"a sweaty customer",
+	"an authentic mexican dish",
+	"unexpected nudity"
+];
+
 module.exports = class Room
 {
 	constructor ( a_userManager, a_roomId )
@@ -16,6 +29,8 @@ module.exports = class Room
 			ROUND_END: 2
 		};
 		this.state = this.STATES.ROUND_START;
+
+		this.prompt = dictionary.length > 0 ? dictionary[ Math.round( Math.random() * dictionary.length ) ] : "the server broke itself";
 	}
 
 	AddUser( a_userId, a_username )
@@ -97,7 +112,10 @@ module.exports = class Room
 			this.users[ i ].votesReceivedThisRound.downvotes = 0;
 		}
 
+		this.prompt = dictionary[ Math.round( Math.random() * dictionary.length ) ];
+
 		this.EmitToRoom( -1, "resetRound", { reset: true } );
+		this.EmitToRoom( -1, "newRound", { prompt: this.prompt } );
 	}
 
 	Vote( a_voterUserId, a_voteData )

@@ -17,6 +17,7 @@ socket.on( "joinRoomResult", function ( a_result )
 {
 	if ( !a_result.ok )
 		alert( "Could not join room! Reason: " + a_result.reason );
+		$( "#prompt" ).text( a_result.prompt );
 } );
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
@@ -78,9 +79,10 @@ socket.on( "resetRound", function ( a_data )
 	ResetRound();
 } );
 
-socket.on( "gifData", function ( a_data )
+socket.on( "newRound", function ( a_roundData )
 {
-	console.log( a_data );
+	console.log( "Recevied new round data: " + JSON.stringify( a_roundData ) );
+	$( "#prompt" ).text( a_roundData.prompt );
 } );
 
 
