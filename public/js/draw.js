@@ -119,7 +119,7 @@ $( document ).ready( function ()
 	} );
 
 
-	$( "#votingButtons button[data-action]" ).on( "click", () =>
+	$( "#votingButtons button[data-action]" ).on( "click", function ()
 	{
 		socket.emit( "vote", {
 			id: $( this ).data( "id" ),
