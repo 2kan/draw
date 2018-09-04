@@ -5,6 +5,7 @@ var opponents = [];
 var _imageSubmitted = false;
 var _username = "some idiot";
 var _id = -1;
+var _prompt = "client is fucked";
 
 const APP_NAME = "draw";
 
@@ -17,7 +18,7 @@ socket.on( "joinRoomResult", function ( a_result )
 {
 	if ( !a_result.ok )
 		alert( "Could not join room! Reason: " + a_result.reason );
-		$( "#prompt" ).text( a_result.prompt );
+	$( "#prompt" ).text( a_result.prompt );
 } );
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
@@ -82,7 +83,8 @@ socket.on( "resetRound", function ( a_data )
 socket.on( "newRound", function ( a_roundData )
 {
 	console.log( "Recevied new round data: " + JSON.stringify( a_roundData ) );
-	$( "#prompt" ).text( a_roundData.prompt );
+	_prompt = a_roundData.prompt;
+	$( "#prompt" ).text( _prompt );
 } );
 
 
@@ -136,8 +138,6 @@ $( document ).ready( function ()
 
 	$( "#exportToGif" ).on( "click", function ()
 	{
-		console.log( "old" );
-
 		// Generate the filename. Man this is a lot of code for something that should be simple
 		const targetId = $( this ).data( "id" );
 		var filename = "blep";
@@ -294,11 +294,23 @@ function EnableVotingButtons()
 //
 async function OpponentRedraw( a_context, a_drawEvent, a_startCallback, a_doneCallback )
 {
+	const yOffset = 50;
+
 	a_context.clearRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
 
 	// Draw white background
 	a_context.fillStyle = "#ffffff";
 	a_context.fillRect( 0, 0, a_context.canvas.width, a_context.canvas.height );
+
+	a_context.fillStyle = "#e6d08e";
+	a_context.fillRect( 0, 0, a_context.canvas.width, 50 );
+	//c.fillRect( 0, c.canvas.height - 50, c.canvas.width, 50 );
+
+	a_context.fillStyle = "#000000"
+	a_context.font = "20px sans-serif";
+	var title = a_context.measureText( _prompt, 10, 20 );
+	console.log( title );
+	a_context.fillText( _prompt, ( a_context.canvas.width - title.width ) / 2, 30 );
 
 	a_context.lineJoin = "round";
 
