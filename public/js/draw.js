@@ -18,7 +18,10 @@ socket.on( "joinRoomResult", function ( a_result )
 {
 	if ( !a_result.ok )
 		alert( "Could not join room! Reason: " + a_result.reason );
-	$( "#prompt" ).text( a_result.prompt );
+
+		
+	_prompt = a_roundData.prompt;
+	$( "#prompt" ).text( _prompt );
 } );
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
