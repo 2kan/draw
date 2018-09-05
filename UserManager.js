@@ -2,7 +2,7 @@
 
 module.exports = class UserManager
 {
-	constructor( a_io )
+	constructor ( a_io )
 	{
 		console.log( "new user man" );
 		this.io = a_io;
@@ -13,7 +13,7 @@ module.exports = class UserManager
 		this.rooms = [];
 
 		// Create a starting room
-		this.rooms.push( { id: 0, room: new _Room( this, 0 ) } );
+		this.rooms.push( { id: 0, room: new _Room( this, 0, "fun with strangers" ) } );
 
 		this.io.on( "connection", ( a_sock ) => { this.CreateUser( a_sock ); } );
 		console.log( "ready" );
@@ -28,8 +28,8 @@ module.exports = class UserManager
 
 		var newUser = new User( this, id, a_sock );
 		this.users[ id ] = newUser;
-		
-		this.EmitToUser( id, "welcome", { id: id } );
+
+		this.EmitToUser( id, "welcome", { id: id, roomList: this.GetRoomList() } );
 
 		return id;
 	}
@@ -62,6 +62,18 @@ module.exports = class UserManager
 		}
 
 		return false;
+
+	}
+
+	GetRoomList()
+	{
+		var rooms = [];
+		for ( var i = 0; i < this.rooms.length; ++i )
+		{
+			rooms.push( this.rooms[ i ].room.GetRoomInfo() );
+		}
+
+		return rooms;
 	}
 
 	GetIo()

@@ -50,6 +50,13 @@ module.exports = class User
 			}
 		} );
 
+		this.sock.on( "updateRoomList", () =>
+		{
+			console.log( "Sending room list to id " + this.id );
+
+			this._usrmgr.EmitToUser( this.id, "roomList", { roomList: this._usrmgr.GetRoomList() } );
+		} );
+
 		this.sock.on( "resetRound", ( a_msg ) =>
 		{
 			console.log( "Reset room called" );

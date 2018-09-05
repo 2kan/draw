@@ -15,10 +15,12 @@ const dictionary = [
 
 module.exports = class Room
 {
-	constructor ( a_userManager, a_roomId )
+	constructor ( a_userManager, a_roomId, a_roomName )
 	{
 		this._usrmgr = a_userManager;
 		this.roomId = a_roomId;
+		this.name = a_roomName;
+
 		this.users = [];
 		this.userCount = 0;
 		this.votesCount = 0;
@@ -31,6 +33,8 @@ module.exports = class Room
 		this.state = this.STATES.ROUND_START;
 
 		this.prompt = dictionary.length > 0 ? dictionary[ Math.round( Math.random() * dictionary.length ) ] : "the server broke itself";
+
+		console.log( `New room created - id: ${ this.roomId } name: ${ this.name }` );
 	}
 
 	AddUser( a_userId, a_username )
@@ -103,6 +107,11 @@ module.exports = class Room
 			if ( this.users[ i ].id == a_userId )
 				return this.users[ i ];
 		}
+	}
+
+	GetRoomInfo()
+	{
+		return { id: this.roomId, name: this.name, playerCount: this.users.length };
 	}
 
 	ResetRound()
