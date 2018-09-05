@@ -49,8 +49,8 @@ module.exports = class UserManager
 			return false;
 
 		this.LeaveAllRooms( a_userId );
-		roomObj.room.AddUser( a_userId, a_username );
-		return roomObj;
+		var result = roomObj.room.AddUser( a_userId, a_username );
+		return result === false ? result : roomObj;
 	}
 
 	LeaveAllRooms( a_userId )
