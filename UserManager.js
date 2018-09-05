@@ -9,11 +9,11 @@ module.exports = class UserManager
 		this.users = [];
 		this.userCount = 0;
 
-		const _Room = require( "./Room.js" );
+		this._Room = require( "./Room.js" );
 		this.rooms = [];
 
 		// Create a starting room
-		this.rooms.push( { id: 0, room: new _Room( this, 0, "fun with strangers" ) } );
+		this.rooms.push( { id: 0, room: new this._Room( this, 0, "fun with strangers" ) } );
 
 		this.io.on( "connection", ( a_sock ) => { this.CreateUser( a_sock ); } );
 		console.log( "ready" );
@@ -34,14 +34,31 @@ module.exports = class UserManager
 		return id;
 	}
 
+	CreateRoom( a_roomName )
+	{
+		const id = this.rooms.length;
+		this.rooms.push( { id: id, room: new this._Room( this, id, a_roomName ) } );
+
+		return id;
+	}
+
 	JoinRoom( a_userId, a_username, a_roomId )
 	{
 		var roomObj = this.GetRoom( a_roomId );
 		if ( !roomObj )
 			return false;
 
+		this.LeaveAllRooms( a_userId );
 		roomObj.room.AddUser( a_userId, a_username );
 		return roomObj;
+	}
+
+	LeaveAllRooms( a_userId )
+	{
+		for ( var i = 0; i < this.rooms.length; ++i )
+		{
+			this.rooms[ i ].room.RemoveUser( a_userId );
+		}
 	}
 
 	DeleteUser( a_userId )
@@ -50,11 +67,12 @@ module.exports = class UserManager
 		{
 			this.rooms[ i ].room.RemoveUser( a_userId );
 		}
+
+		this.users[ a_userId ] = null;
 	}
 
 	GetRoom( a_roomId )
 	{
-		console.log( a_roomId );
 		for ( var i = 0; i < this.rooms.length; ++i )
 		{
 			if ( this.rooms[ i ].id == a_roomId )

@@ -34,6 +34,8 @@ module.exports = class User
 			this.ReceivedImage( a_msg );
 		} );
 
+
+
 		this.sock.on( "joinRoom", ( a_joinData ) =>
 		{
 			this.username = a_joinData.username;
@@ -50,6 +52,12 @@ module.exports = class User
 			}
 		} );
 
+		this.sock.on( "createRoom", ( a_roomData ) =>
+		{
+			const roomId = this._usrmgr.CreateRoom( a_roomData.name );
+			this._usrmgr.EmitToUser( this.id, "createRoomResult", { ok: true, id: roomId } );
+		} );
+
 		this.sock.on( "updateRoomList", () =>
 		{
 			console.log( "Sending room list to id " + this.id );
@@ -62,6 +70,8 @@ module.exports = class User
 			console.log( "Reset room called" );
 			this.roomObj.room.ResetRound();
 		} );
+
+
 
 		this.sock.on( "vote", ( a_msg ) =>
 		{

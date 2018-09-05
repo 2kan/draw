@@ -93,6 +93,8 @@ module.exports = class Room
 		{
 			this.ResetRound();
 		}
+
+		console.log( "id " + a_userId + " left room " + this.roomId );
 	}
 
 	GetUsers()

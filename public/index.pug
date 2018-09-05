@@ -89,6 +89,22 @@ html
 				.modal-card-foot
 					button.button#refreshRoomList= "Refresh list"
 
+		.modal#createRoomModal
+			.modal-background
+			.modal-card
+				.modal-card-head
+					p.modal-card-title= "Enter the room name"
+				
+				.modal-card-body
+					.field.has-addons
+						.control.is-expanded
+							input.input#roomNameInput(type="text", placeholder="Room name")
+						.control
+							a.button.is-info#submitRoomName= "Create"
+
+				.modal-card-foot
+					p= "Room name must be at least one character long"
+
 
 
 		.columns
@@ -117,8 +133,9 @@ html
 						span= "Submit image"
 
 			.column
-				nav.panel#userOutlet
+				nav.panel
 					p.panel-heading= "Players in room"
+					#userOutlet
 				
 				nav.panel
 					p.panel-heading#prompt= "Retreiving prompt..."

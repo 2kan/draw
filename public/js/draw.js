@@ -37,6 +37,7 @@ socket.on( "playerJoinedRoom", function ( a_opponentData )
 
 socket.on( "playerList", function ( a_opponents )
 {
+	$( "#userOutlet" ).empty();
 	for ( var i = 0; i < a_opponents.length; ++i )
 		CreateOpponent( a_opponents[ i ] );
 } );
@@ -64,6 +65,18 @@ socket.on( "roomList", function ( a_rooms )
 
 	$( "#roomList" ).empty();
 	$( "#roomList" ).append( rooms );
+} );
+
+socket.on( "createRoomResult", function ( a_result )
+{
+	if ( a_result.ok )
+	{
+		socket.emit( "joinRoom", { roomId: a_result.id, username: _username } );
+	}
+	else
+	{
+		alert( "Could not create room. Check server." );
+	}
 } );
 
 socket.on( "opponentImageData", function ( a_opponentImage )
@@ -195,6 +208,27 @@ $( document ).ready( function ()
 		RequestRoomList();
 	} );
 
+	$( "#newRoomButton" ).on( "click", function ()
+	{
+		ToggleNewRoomModal( true );
+	} );
+
+	$( "#submitRoomName" ).on( "click", function ()
+	{
+		const name = $( "#roomNameInput" ).val();
+
+		if ( RoomNameIsValid( name ) )
+		{
+			socket.emit( "createRoom", { name: name } );
+			ToggleNewRoomModal( false );
+			ToggleRoomSelectionModal( false );
+		}
+		else
+		{
+			$( "#roomNameInput" ).addClass( "is-danger" );
+			$( "#roomNameInput" ).val( "" );
+		}
+	} );
 
 	ToggleUsernameModal( true );
 } );
@@ -218,6 +252,14 @@ function ToggleRoomSelectionModal( a_show )
 		RequestRoomList();
 }
 
+function ToggleNewRoomModal( a_show )
+{
+	$( "#createRoomModal" ).css( "display", a_show ? "inherit" : "none" );
+
+	if ( !a_show )
+		$( "#roomNameInput" ).val( "" );
+}
+
 function RequestRoomList()
 {
 	socket.emit( "updateRoomList" );
@@ -227,6 +269,12 @@ function UsernameIsValid( a_username )
 {
 	// Disallow spaces for usernames with minimum length of 1 character
 	return a_username.match( /^\S+$/ ) != undefined;
+}
+
+function RoomNameIsValid( a_roomName )
+{
+	// Disallow spaces for usernames with minimum length of 1 character
+	return a_roomName.match( /^\S.*$/ ) != undefined;
 }
 
 
