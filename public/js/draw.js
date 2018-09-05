@@ -22,7 +22,10 @@ socket.on( "welcome", function ( a_welcomeData )
 socket.on( "joinRoomResult", function ( a_result )
 {
 	if ( !a_result.ok )
-		alert( "Could not join room! Reason: " + a_result.reason );
+	{
+		console.warn( "Could not join room! Reason: " + a_result.reason );
+		ToggleRoomSelectionModal( true );
+	}
 	else
 	{
 		_prompt = a_result.prompt;
