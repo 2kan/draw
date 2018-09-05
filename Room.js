@@ -84,19 +84,16 @@ module.exports = class Room
 			return;
 
 		this.EmitToRoom( a_userId, "playerLeftRoom", { id: a_userId } );
+		--this.userCount;
 
 		for ( var i = 0; i < this.users.length; ++i )
 			if ( this.users[ i ].id == a_userId )
 				this.users.splice( i, 1 );
 
 		if ( this.users.length <= 0 )
-		{
 			this.ResetRound();
-		}
 		else
-		{
 			console.log( "Users left in room: " + this.users.length );
-		}
 
 		console.log( "id " + a_userId + " left room " + this.roomId );
 	}
