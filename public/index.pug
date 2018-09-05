@@ -27,6 +27,8 @@ html
 							input.input#username(type="text", placeholder="Username", value="an_idiot")
 						.control
 							a.button.is-info#submitUsername= "Join"
+				.modal-card-foot
+					p= "Username must be at least one character long and contain no spaces"
 
 		.modal#imageDrawingModal
 			.modal-background
@@ -54,6 +56,39 @@ html
 							span= "Export to WebM"
 							span.icon.is-small
 								i.fas.fa-download
+
+		.modal#roomSelectionModal
+			.modal-background
+			.modal-card
+				.modal-card-head
+					p.modal-card-title= "Lobby"
+				
+				.modal-card-body
+					.columns.is-1
+						.column
+							.field
+								.control.has-icons-right
+									input.input#searchBox(placeholder="Search...")
+									span.icon.is-small.is-right
+										i.fas.fa-search
+						.column.is-3(style="text-align: right")
+							button.button.is-info#newRoomButton
+								span.icon.is-small
+									i.fas.fa-plus
+								span= "New room"
+					
+					#roomList
+						.level
+							.level-left
+								.level-item
+									p= "Room name blep"
+							.level-right
+								.level-item
+									p= "4 players"
+				
+				.modal-card-foot
+					button.button#refreshRoomList= "Refresh list"
+
 
 
 		.columns

@@ -7,6 +7,8 @@ var _username = "some idiot";
 var _id = -1;
 var _prompt = "client is fucked";
 
+var userInRoom = false;
+
 const APP_NAME = "draw";
 
 socket.on( "welcome", function ( a_welcomeData )
@@ -18,10 +20,13 @@ socket.on( "joinRoomResult", function ( a_result )
 {
 	if ( !a_result.ok )
 		alert( "Could not join room! Reason: " + a_result.reason );
+	else
+	{
+		_prompt = a_result.prompt;
+		$( "#prompt" ).text( _prompt );
 
-
-	_prompt = a_result.prompt;
-	$( "#prompt" ).text( _prompt );
+		userInRoom = true;
+	}
 } );
 
 socket.on( "playerJoinedRoom", function ( a_opponentData )
@@ -34,6 +39,31 @@ socket.on( "playerList", function ( a_opponents )
 {
 	for ( var i = 0; i < a_opponents.length; ++i )
 		CreateOpponent( a_opponents[ i ] );
+} );
+
+socket.on( "roomList", function ( a_rooms )
+{
+	const template = "<div class='level' data-id='$id'><div class='level-left'><div class='level-item'><p>$name</p></div></div><div class='level-right'><div class='level-item'><p>$playerCount</p></div></div></div>";
+	var html = "";
+	for ( var i = 0; i < a_rooms.roomList.length; ++i )
+	{
+		html += template
+			.replace( "$id", a_rooms.roomList[ i ].id )
+			.replace( "$name", a_rooms.roomList[ i ].name )
+			.replace( "$playerCount", a_rooms.roomList[ i ].playerCount + " players" );
+	}
+
+	const rooms = $( html );
+
+	rooms.on( "click", function ()
+	{
+		const roomId = $( this ).attr( "data-id" );
+		socket.emit( "joinRoom", { roomId: roomId, username: _username } );
+		ToggleRoomSelectionModal( false );
+	} );
+
+	$( "#roomList" ).empty();
+	$( "#roomList" ).append( rooms );
 } );
 
 socket.on( "opponentImageData", function ( a_opponentImage )
@@ -113,8 +143,11 @@ $( document ).ready( function ()
 		if ( UsernameIsValid( user ) )
 		{
 			_username = user;
-			socket.emit( "joinRoom", { roomId: 0, username: _username } );
+			//socket.emit( "joinRoom", { roomId: 0, username: _username } );
 			ToggleUsernameModal( false );
+
+			if ( !userInRoom )
+				ToggleRoomSelectionModal( true );
 		}
 		else
 		{
@@ -157,6 +190,11 @@ $( document ).ready( function ()
 		DownloadWebm( filename );
 	} );
 
+	$( "#refreshRoomList" ).on( "click", function ()
+	{
+		RequestRoomList();
+	} );
+
 
 	ToggleUsernameModal( true );
 } );
@@ -172,11 +210,25 @@ function ToggleDrawingModal( a_show )
 	$( "#imageDrawingModal" ).css( "display", a_show ? "inherit" : "none" );
 }
 
+function ToggleRoomSelectionModal( a_show )
+{
+	$( "#roomSelectionModal" ).css( "display", a_show ? "inherit" : "none" );
+
+	if ( a_show )
+		RequestRoomList();
+}
+
+function RequestRoomList()
+{
+	socket.emit( "updateRoomList" );
+}
+
 function UsernameIsValid( a_username )
 {
 	// Disallow spaces for usernames with minimum length of 1 character
 	return a_username.match( /^\S+$/ ) != undefined;
 }
+
 
 function CreateOpponent( a_opponentData )
 {

@@ -60,3 +60,10 @@ body
 {
 	text-decoration: underline;
 }
+
+#roomList .level
+{
+	border-top: 1px solid #cecece;
+	padding: 0.75rem 0;
+	margin-bottom: 0;
+}
