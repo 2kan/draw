@@ -64,6 +64,16 @@ body
 #roomList .level
 {
 	border-top: 1px solid #cecece;
-	padding: 0.75rem 0;
+	padding: 0.75rem;
 	margin-bottom: 0;
+}
+
+#roomList .level:hover
+{
+	background-color: #ececec;
+}
+
+.promptHeading
+{
+	font-weight: bold;
 }

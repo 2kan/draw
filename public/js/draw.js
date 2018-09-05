@@ -9,6 +9,9 @@ var _prompt = "client is fucked";
 
 var userInRoom = false;
 
+var roundHistory = [];
+var _watchingReplay = false;
+
 const APP_NAME = "draw";
 
 socket.on( "welcome", function ( a_welcomeData )
@@ -60,6 +63,7 @@ socket.on( "roomList", function ( a_rooms )
 	{
 		const roomId = $( this ).attr( "data-id" );
 		socket.emit( "joinRoom", { roomId: roomId, username: _username } );
+		opponents = [];
 		ToggleRoomSelectionModal( false );
 	} );
 
@@ -71,6 +75,7 @@ socket.on( "createRoomResult", function ( a_result )
 {
 	if ( a_result.ok )
 	{
+		opponents = [];
 		socket.emit( "joinRoom", { roomId: a_result.id, username: _username } );
 	}
 	else
@@ -97,6 +102,7 @@ socket.on( "opponentImageData", function ( a_opponentImage )
 	// Check if everyone's submitted their turn
 	if ( RoundIsReadyForReplay() )
 	{
+		AddRoundToHistory();
 		DrawNextOpponentCanvas();
 	}
 	//DrawOpponentCanvas( opponent.context, a_opponentImage.imageData );
@@ -139,7 +145,7 @@ $( document ).ready( function ()
 {
 	$( "#resetRoundButton" ).on( "click", function ()
 	{
-		socket.emit( "resetRound", { ok: true } );
+		RequestResetRound();
 	} );
 
 	$( "#submit" ).on( "click", function ()
@@ -189,18 +195,15 @@ $( document ).ready( function ()
 	{
 		// Generate the filename. Man this is a lot of code for something that should be simple
 		const targetId = $( this ).data( "id" );
-		var filename = "blep";
-		for ( var i = 0; i < opponents.length; ++i )
-		{
-			if ( opponents[ i ].id == targetId )
-			{
-				const timestamp = ( new Date() ).toISOString().replace( "T", " " ).substring( 0, 19 );
-				filename = `${ APP_NAME } ${ opponents[ i ].name } ${ timestamp }`;
-				break;
-			}
-		}
+		const filename = GenerateWebmFilename( targetId );
 
 		DownloadWebm( filename );
+
+		if ( _watchingReplay )
+		{
+			_watchingReplay = false;
+			ToggleDrawingModal( false );
+		}
 	} );
 
 	$( "#refreshRoomList" ).on( "click", function ()
@@ -229,6 +232,8 @@ $( document ).ready( function ()
 			$( "#roomNameInput" ).val( "" );
 		}
 	} );
+
+	$( "#leaveRoomButton" ).on( "click", () => ToggleRoomSelectionModal( true ) );
 
 	ToggleUsernameModal( true );
 } );
@@ -316,6 +321,11 @@ function RoundIsReadyForReplay()
 	return opponentsReady == opponents.length && _imageSubmitted;
 }
 
+function RequestResetRound()
+{
+	socket.emit( "resetRound", { ok: true } );
+}
+
 function ResetRound()
 {
 	for ( var i = 0; i < opponents.length; ++i )
@@ -362,6 +372,8 @@ function DrawNextOpponentCanvas()
 
 					// Stop recording and finalize link
 					StopWebmRecording();
+
+					AddRecordingToRoundHistory();
 				}
 			);
 
@@ -385,10 +397,13 @@ function InitVoteButtons( a_opponentId )
 
 function EnableVotingButtons()
 {
-	$( "#votingButtons button" ).each( ( a_index, a_element ) =>
-	{
-		$( a_element ).prop( "disabled", false );
-	} );
+	if ( _watchingReplay )
+		$( "#exportToGif" ).prop( "disabled", false );
+	else
+		$( "#votingButtons button" ).each( ( a_index, a_element ) =>
+		{
+			$( a_element ).prop( "disabled", false );
+		} );
 }
 
 //
@@ -494,6 +509,99 @@ function UpdatePlayerListWithScores( a_scores )
 			$( playerList[ i ] ).find( "i" ).removeClass().addClass( "fas fa-meh-blank" );
 	}
 }
+
+function AddRoundToHistory()
+{
+	const promptTemplate = "<a class='panel-block promptHeading'>$prompt</a>";
+	const drawingTemplate = "<a class='panel-block drawingListing' data-round-id='$roundId' data-id='$id'><span class='panel-icon'><i class='fas fa-pencil-alt'></i></span>$playerName</a>";
+
+	while ( roundHistory.length >= 3 )
+	{
+		for ( var i = 0; i < roundHistory[ 0 ].opponents.length; ++i )
+			window.URL.revokeObjectURL( roundHistory[ 0 ].opponents[ i ].webmUrl );
+
+		roundHistory = roundHistory.slice( 0, 1 );
+	}
+
+	roundHistory.push( { prompt: _prompt, opponents: [] } );
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		roundHistory[ roundHistory.length - 1 ].opponents.push( {
+			id: opponents[ i ].id,
+			name: opponents[ i ].name,
+			imageData: opponents[ i ].imageData
+		} );
+	}
+
+	var newElements = [];
+	for ( var i = 0; i < roundHistory.length; ++i )
+	{
+		newElements.push( $( promptTemplate.replace( "$prompt", _prompt ) ) );
+
+		for ( var k = 0; k < roundHistory[ i ].opponents.length; ++k )
+		{
+			var listing = $( drawingTemplate
+				.replace( "$roundId", i )
+				.replace( "$id", roundHistory[ i ].opponents[ k ].id )
+				.replace( "$playerName", roundHistory[ i ].opponents[ k ].name )
+			);
+
+			listing.on( "click", function ()
+			{
+				const id = $( this ).attr( "data-id" );
+				const roundId = $( this ).attr( "data-round-id" );
+
+				_watchingReplay = true;
+				//ToggleDrawingModal( true );
+
+				for ( var i = 0; i < roundHistory[ roundId ].opponents.length; ++i )
+					if ( roundHistory[ roundId ].opponents[ i ].id == id )
+						DownloadWebm(
+							GenerateWebmFilename( roundHistory[ roundId ].opponents[ i ].id ),
+							roundHistory[ roundId ].opponents[ i ].webmUrl
+						);
+			} );
+
+			newElements.push( listing );
+		}
+	}
+
+	//const obj = $( html );
+	//obj.find( ".drawingListing" ).
+
+	$( "#roundHistoryOutlet" ).empty();
+	$( "#roundHistoryOutlet" ).append( newElements );
+
+}
+
+function AddRecordingToRoundHistory( a_opponentId )
+{
+	const roundIndex = roundHistory.length - 1;
+	for ( var i = 0; i < roundHistory[ roundIndex ].opponents.length; ++i )
+	{
+		if ( roundHistory[ roundIndex ].opponents[ i ].id == a_opponentId )
+			roundHistory[ roundIndex ].opponents[ i ].webmUrl = GetWebmDownloadLink();
+	}
+}
+
+
+function GenerateWebmFilename( a_opponentId )
+{
+	var filename = "blep";
+	for ( var i = 0; i < opponents.length; ++i )
+	{
+		if ( opponents[ i ].id == a_opponentId )
+		{
+			const timestamp = ( new Date() ).toISOString().replace( "T", " " ).substring( 0, 19 );
+			filename = `${ APP_NAME } ${ opponents[ i ].name } ${ timestamp }`;
+			break;
+		}
+	}
+
+	return filename;
+}
+
+
 
 function sleep( a_millis )
 {

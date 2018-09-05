@@ -16,6 +16,11 @@ html
 		link(rel="stylesheet", href="https://use.fontawesome.com/releases/v5.3.1/css/all.css")
 
 	body
+
+		//
+		// Start MODAL section
+		//
+
 		.modal#usernameSelectModal
 			.modal-background
 			.modal-card
@@ -105,8 +110,14 @@ html
 				.modal-card-foot
 					p= "Room name must be at least one character long"
 
+		//
+		// End MODAL section
+		//
 
 
+		//
+		// Gameplay section
+		//
 		.columns
 			.column#canvasOutlet
 				canvas.canvas#drawCanvas(width=500, height=500)
@@ -139,5 +150,7 @@ html
 				
 				nav.panel
 					p.panel-heading#prompt= "Retreiving prompt..."
+					#roundHistoryOutlet
 				
-				button.button.is-success#resetRoundButton= "Reset round"
+				//button.button.is-success#resetRoundButton= "Reset round"
+				button.button.is-success#leaveRoomButton= "Leave room"

@@ -30,13 +30,16 @@ function StopWebmRecording()
 	//ExportVid(new Blob( _chunks, { type: "video/webm" } ));
 }
 
-function DownloadWebm(a_filename)
+function GetWebmDownloadLink()
 {
-	const url = URL.createObjectURL( new Blob( _chunks, { type: "video/webm" } ) );
-	const link = document.createElement( "a" );
+	return URL.createObjectURL( new Blob( _chunks, { type: "video/webm" } ) );
+}
 
-	link.href = url
+function DownloadWebm( a_filename, a_url )
+{
+	const link = document.createElement( "a" );
+	link.href = a_url ? a_url : GetWebmDownloadLink();
 	link.download = a_filename;
 	link.click();
-	window.URL.revokeObjectURL( url );
+	//window.URL.revokeObjectURL( url );
 }

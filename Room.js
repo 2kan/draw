@@ -93,6 +93,10 @@ module.exports = class Room
 		{
 			this.ResetRound();
 		}
+		else
+		{
+			console.log( "Users left in room: " + this.users.length );
+		}
 
 		console.log( "id " + a_userId + " left room " + this.roomId );
 	}
@@ -118,6 +122,7 @@ module.exports = class Room
 
 	ResetRound()
 	{
+		console.log( "Resetting round..." );
 		this.state = this.STATES.ROUND_START;
 		this.votesCount = 0;
 
@@ -166,6 +171,8 @@ module.exports = class Room
 
 		if ( this.votesCount == this.userCount )
 			this.CalculateAndEmitScores();
+		else
+			console.log( this.userCount - this.votesCount + " players left to vote" );
 	}
 
 	CalculateAndEmitScores()
