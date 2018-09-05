@@ -536,7 +536,7 @@ function AddRoundToHistory()
 	var newElements = [];
 	for ( var i = 0; i < roundHistory.length; ++i )
 	{
-		newElements.push( $( promptTemplate.replace( "$prompt", _prompt ) ) );
+		newElements.push( $( promptTemplate.replace( "$prompt", roundHistory[ i ].prompt ) ) );
 
 		for ( var k = 0; k < roundHistory[ i ].opponents.length; ++k )
 		{
