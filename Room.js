@@ -10,7 +10,10 @@ const dictionary = [
 	"chekun",
 	"a sweaty customer",
 	"an authentic mexican dish",
-	"unexpected nudity"
+	"unexpected nudity",
+	"neighbourly responsibility",
+	"aussie battlers",
+	"bald eagle"
 ];
 
 module.exports = class Room
